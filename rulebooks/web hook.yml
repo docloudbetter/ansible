@@ -1,0 +1,38 @@
+---
+- name: Listen for events on a webhook
+  hosts: all
+  sources:
+    - ansible.eda.webhook:
+        host: 0.0.0.0
+        port: 5001
+  rules:
+    - name: foo
+      condition: event.payload.message == "foo"
+      action:
+        debug:
+          msg: "You said, '{{ event.payload.message }}'. It's not bar"
+
+    - name: Didn't hear Hello
+      condition: event.payload.message != "foo"
+      action:
+        debug:
+          msg: "You said, '{{ event.payload.message }}'. it's not foo"
+
+    - name: Update
+      condition: event.payload.message == "update"
+      action:
+        run_playbook:
+          name: ../playbook/update.yml
+        debug:
+          msg: "Let's update ..."
+
+    - name: Package install
+      condition: event.payload.message == "install"
+      action:
+        run_playbook:
+          name: ../playbook/package_install.yml
+        debug:
+          msg: "Let's install package ..."
+          
+
+          
